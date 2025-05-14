@@ -15,7 +15,7 @@
         color: #eee;
         display: flex;
         justify-content: center;
-        align-items: flex-start;
+        align-items: center; /* centraliza verticalmente */
         min-height: 100vh;
         padding: 2rem 1rem;
         user-select: none;
@@ -243,15 +243,12 @@
     const filtroStatus = document.getElementById('filtro-status');
     const semTarefasMsg = document.getElementById('sem-tarefas-msg');
 
-    // Recupera lista do localStorage ou inicia vazia
     let tarefas = JSON.parse(localStorage.getItem('tarefasAvancadas')) || [];
 
-    // Salva lista no localStorage
     function salvarTarefas() {
         localStorage.setItem('tarefasAvancadas', JSON.stringify(tarefas));
     }
 
-    // Cria elemento da tarefa no DOM
     function criarElementoTarefa(tarefa, index) {
         const li = document.createElement('li');
         li.classList.add('tarefa');
@@ -260,7 +257,6 @@
         li.setAttribute('role', 'listitem');
         li.setAttribute('aria-checked', tarefa.completada);
 
-        // Info da tarefa
         const infoDiv = document.createElement('div');
         infoDiv.className = 'tarefa-info';
 
@@ -276,11 +272,9 @@
 
         li.appendChild(infoDiv);
 
-        // Ações botão
         const acoesDiv = document.createElement('div');
         acoesDiv.className = 'acoes';
 
-        // Botão concluir (toggle)
         const btnConcluir = document.createElement('button');
         btnConcluir.className = 'acao-btn';
         btnConcluir.title = tarefa.completada ? 'Marcar como pendente' : 'Marcar como concluída';
@@ -292,7 +286,6 @@
         });
         acoesDiv.appendChild(btnConcluir);
 
-        // Botão editar
         const btnEditar = document.createElement('button');
         btnEditar.className = 'acao-btn';
         btnEditar.title = 'Editar tarefa';
@@ -304,7 +297,6 @@
         });
         acoesDiv.appendChild(btnEditar);
 
-        // Botão deletar
         const btnDeletar = document.createElement('button');
         btnDeletar.className = 'acao-btn';
         btnDeletar.title = 'Excluir tarefa';
@@ -321,17 +313,14 @@
         return li;
     }
 
-    // Atualiza a lista exibida no DOM aplicando filtros
     function renderizarTarefas() {
         listaTarefas.innerHTML = '';
         let tarefasFiltradas = tarefas;
 
-        // Filtrar prioridade
         const filtroP = filtroPrioridade.value;
         if (filtroP !== 'todas') {
             tarefasFiltradas = tarefasFiltradas.filter(t => t.prioridade === filtroP);
         }
-        // Filtrar status
         const filtroS = filtroStatus.value;
         if (filtroS === 'pendentes') {
             tarefasFiltradas = tarefasFiltradas.filter(t => !t.completada);
@@ -344,7 +333,6 @@
         } else {
             semTarefasMsg.style.display = 'none';
             tarefasFiltradas.forEach((tarefa, idx) => {
-                // Importante: aqui é o índice real da tarefa no array original
                 const indexReal = tarefas.indexOf(tarefa);
                 const li = criarElementoTarefa(tarefa, indexReal);
                 listaTarefas.appendChild(li);
@@ -352,21 +340,18 @@
         }
     }
 
-    // Adiciona nova tarefa ao array e salva
     function adicionarTarefa(nome, prioridade) {
         tarefas.push({nome: nome.trim(), prioridade: prioridade, completada: false});
         salvarTarefas();
         renderizarTarefas();
     }
 
-    // Alterna status completada da tarefa
     function toggleConcluir(index) {
         tarefas[index].completada = !tarefas[index].completada;
         salvarTarefas();
         renderizarTarefas();
     }
 
-    // Edita descrição da tarefa
     function editarTarefa(index) {
         const novaDescricao = prompt('Editar tarefa:', tarefas[index].nome);
         if (novaDescricao !== null) {
@@ -379,7 +364,6 @@
         }
     }
 
-    // Deleta tarefa do array e atualiza
     function deletarTarefa(index) {
         const conf = confirm('Deseja realmente excluir esta tarefa?');
         if (conf) {
@@ -389,7 +373,6 @@
         }
     }
 
-    // Listener para o submit do formulário - adiciona tarefa
     formTarefa.addEventListener('submit', e => {
         e.preventDefault();
         const nome = inputTarefa.value;
