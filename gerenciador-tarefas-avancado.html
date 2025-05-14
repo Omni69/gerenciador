@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gerenciador de Tarefas Avançado</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    * {
+        margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #121212;
+        color: #eee;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+        user-select: none;
+    }
+    .container {
+        background: #1f1f25;
+        border-radius: 10px;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: 0 5px 15px rgba(33, 150, 243, 0.6);
+        padding: 2rem;
+    }
+    h1 {
+        font-weight: 600;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        color: #2196f3;
+        letter-spacing: 1px;
+        text-shadow: 0 0 8px #2196f3aa;
+    }
+    form {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    form input[type="text"] {
+        flex-grow: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 1rem;
+        outline: none;
+        box-shadow: inset 0 0 8px #2196f3aa;
+        background-color: #2a2a32;
+        color: #eee;
+        transition: box-shadow 0.3s ease;
+    }
+    form input[type="text"]:focus {
+        box-shadow: inset 0 0 12px #42a1ffcc;
+    }
+    form select {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 1rem;
+        background-color: #2a2a32;
+        color: #eee;
+        box-shadow: inset 0 0 8px #2196f3aa;
+        cursor: pointer;
+        outline: none;
+    }
+    form button[type="submit"] {
+        background: #2196f3;
+        border: none;
+        border-radius: 8px;
+        padding: 0 1.25rem;
+        font-weight: 600;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 3px 8px #2196f3bb;
+        user-select: none;
+    }
+    form button[type="submit"]:hover {
+        background: #42a1ff;
+    }
+    .filters {
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+    }
+    .filters select {
+        background-color: #2a2a32;
+        color: #eee;
+        border-radius: 6px;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        box-shadow: inset 0 0 6px #2196f3aa;
+        cursor: pointer;
+        outline: none;
+    }
+    ul.tarefas {
+        list-style: none;
+        max-height: 380px;
+        overflow-y: auto;
+        border-radius: 6px;
+        box-shadow: inset 0 0 20px #2196f3cc;
+        background-color: #292931;
+        padding: 0.5rem;
+        scrollbar-width: thin;
+        scrollbar-color: #2196f3 #1f1f25;
+    }
+    ul.tarefas::-webkit-scrollbar {
+        width: 8px;
+    }
+    ul.tarefas::-webkit-scrollbar-track {
+        background: #1f1f25;
+        border-radius: 6px;
+    }
+    ul.tarefas::-webkit-scrollbar-thumb {
+        background-color: #2196f3;
+        border-radius: 6px;
+    }
+    li.tarefa {
+        background: #353542;
+        margin-bottom: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 8px #2196f3aa;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        user-select: none;
+    }
+    li.tarefa:hover:not(.completed) {
+        background: #4568e8;
+        box-shadow: 0 5px 12px #42a1ffdd;
+    }
+    li.tarefa.completed {
+        text-decoration: line-through;
+        color: #888;
+        background: #2a2a32;
+        box-shadow: none;
+        cursor: default;
+    }
+    .tarefa-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        user-select: text;
+    }
+    .tarefa-nome {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+    .tarefa-prioridade {
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 0.1rem 0.5rem;
+        border-radius: 12px;
+        color: #222;
+        width: fit-content;
+        user-select: none;
+    }
+    .prioridade-baixa {
+        background-color: #33cc77;
+    }
+    .prioridade-media {
+        background-color: #f1c40f;
+    }
+    .prioridade-alta {
+        background-color: #e74c3c;
+    }
+    .acoes {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+    button.acao-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+        outline: none;
+        color: #61dafb;
+        font-size: 1.3rem;
+        transition: color 0.3s ease;
+        user-select: none;
+        padding: 0;
+    }
+    button.acao-btn:hover {
+        color: #42a1ff;
+    }
+    .sem-tarefas {
+        text-align: center;
+        color: #888;
+        padding: 3rem 0;
+        font-style: italic;
+        font-size: 1.1rem;
+    }
+</style>
+</head>
+<body>
+    <div class="container" role="main">
+        <h1>Gerenciador de Tarefas Avançado</h1>
+        <form id="form-tarefa" aria-label="Formulário para adicionar nova tarefa">
+            <input type="text" id="input-tarefa" placeholder="O que você precisa fazer?" aria-label="Descrição da tarefa" required autocomplete="off" />
+            <select id="select-prioridade" aria-label="Selecionar prioridade da tarefa">
+                <option value="media" selected>Média</option>
+                <option value="baixa">Baixa</option>
+                <option value="alta">Alta</option>
+            </select>
+            <button type="submit" aria-label="Adicionar tarefa">+</button>
+        </form>
+
+        <div class="filters" aria-label="Filtros de tarefas">
+            <select id="filtro-prioridade" aria-label="Filtrar por prioridade">
+                <option value="todas" selected>Todas</option>
+                <option value="alta">Alta</option>
+                <option value="media">Média</option>
+                <option value="baixa">Baixa</option>
+            </select>
+            <select id="filtro-status" aria-label="Filtrar por status">
+                <option value="todas" selected>Todas</option>
+                <option value="pendentes">Pendentes</option>
+                <option value="concluidas">Concluídas</option>
+            </select>
+        </div>
+
+        <ul class="tarefas" id="lista-tarefas" aria-live="polite" aria-label="Lista de tarefas">
+            <li class="sem-tarefas" id="sem-tarefas-msg">Nenhuma tarefa aqui, adicione uma!</li>
+        </ul>
+    </div>
+
+<script>
+    const formTarefa = document.getElementById('form-tarefa');
+    const inputTarefa = document.getElementById('input-tarefa');
+    const selectPrioridade = document.getElementById('select-prioridade');
+    const listaTarefas = document.getElementById('lista-tarefas');
+    const filtroPrioridade = document.getElementById('filtro-prioridade');
+    const filtroStatus = document.getElementById('filtro-status');
+    const semTarefasMsg = document.getElementById('sem-tarefas-msg');
+
+    // Recupera lista do localStorage ou inicia vazia
+    let tarefas = JSON.parse(localStorage.getItem('tarefasAvancadas')) || [];
+
+    // Salva lista no localStorage
+    function salvarTarefas() {
+        localStorage.setItem('tarefasAvancadas', JSON.stringify(tarefas));
+    }
+
+    // Cria elemento da tarefa no DOM
+    function criarElementoTarefa(tarefa, index) {
+        const li = document.createElement('li');
+        li.classList.add('tarefa');
+        if (tarefa.completada) li.classList.add('completed');
+        li.setAttribute('tabindex', '0');
+        li.setAttribute('role', 'listitem');
+        li.setAttribute('aria-checked', tarefa.completada);
+
+        // Info da tarefa
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'tarefa-info';
+
+        const nomeSpan = document.createElement('span');
+        nomeSpan.className = 'tarefa-nome';
+        nomeSpan.textContent = tarefa.nome;
+        infoDiv.appendChild(nomeSpan);
+
+        const prioridadeSpan = document.createElement('span');
+        prioridadeSpan.className = 'tarefa-prioridade prioridade-' + tarefa.prioridade;
+        prioridadeSpan.textContent = tarefa.prioridade.charAt(0).toUpperCase() + tarefa.prioridade.slice(1);
+        infoDiv.appendChild(prioridadeSpan);
+
+        li.appendChild(infoDiv);
+
+        // Ações botão
+        const acoesDiv = document.createElement('div');
+        acoesDiv.className = 'acoes';
+
+        // Botão concluir (toggle)
+        const btnConcluir = document.createElement('button');
+        btnConcluir.className = 'acao-btn';
+        btnConcluir.title = tarefa.completada ? 'Marcar como pendente' : 'Marcar como concluída';
+        btnConcluir.setAttribute('aria-label', btnConcluir.title);
+        btnConcluir.innerHTML = tarefa.completada ? '&#10004;' : '&#9633;';
+        btnConcluir.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleConcluir(index);
+        });
+        acoesDiv.appendChild(btnConcluir);
+
+        // Botão editar
+        const btnEditar = document.createElement('button');
+        btnEditar.className = 'acao-btn';
+        btnEditar.title = 'Editar tarefa';
+        btnEditar.setAttribute('aria-label', 'Editar tarefa');
+        btnEditar.innerHTML = '&#9998;';
+        btnEditar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            editarTarefa(index);
+        });
+        acoesDiv.appendChild(btnEditar);
+
+        // Botão deletar
+        const btnDeletar = document.createElement('button');
+        btnDeletar.className = 'acao-btn';
+        btnDeletar.title = 'Excluir tarefa';
+        btnDeletar.setAttribute('aria-label', 'Excluir tarefa');
+        btnDeletar.innerHTML = '&#128465;';
+        btnDeletar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deletarTarefa(index);
+        });
+        acoesDiv.appendChild(btnDeletar);
+
+        li.appendChild(acoesDiv);
+
+        return li;
+    }
+
+    // Atualiza a lista exibida no DOM aplicando filtros
+    function renderizarTarefas() {
+        listaTarefas.innerHTML = '';
+        let tarefasFiltradas = tarefas;
+
+        // Filtrar prioridade
+        const filtroP = filtroPrioridade.value;
+        if (filtroP !== 'todas') {
+            tarefasFiltradas = tarefasFiltradas.filter(t => t.prioridade === filtroP);
+        }
+        // Filtrar status
+        const filtroS = filtroStatus.value;
+        if (filtroS === 'pendentes') {
+            tarefasFiltradas = tarefasFiltradas.filter(t => !t.completada);
+        } else if (filtroS === 'concluidas') {
+            tarefasFiltradas = tarefasFiltradas.filter(t => t.completada);
+        }
+
+        if (tarefasFiltradas.length === 0) {
+            semTarefasMsg.style.display = 'block';
+        } else {
+            semTarefasMsg.style.display = 'none';
+            tarefasFiltradas.forEach((tarefa, idx) => {
+                // Importante: aqui é o índice real da tarefa no array original
+                const indexReal = tarefas.indexOf(tarefa);
+                const li = criarElementoTarefa(tarefa, indexReal);
+                listaTarefas.appendChild(li);
+            });
+        }
+    }
+
+    // Adiciona nova tarefa ao array e salva
+    function adicionarTarefa(nome, prioridade) {
+        tarefas.push({nome: nome.trim(), prioridade: prioridade, completada: false});
+        salvarTarefas();
+        renderizarTarefas();
+    }
+
+    // Alterna status completada da tarefa
+    function toggleConcluir(index) {
+        tarefas[index].completada = !tarefas[index].completada;
+        salvarTarefas();
+        renderizarTarefas();
+    }
+
+    // Edita descrição da tarefa
+    function editarTarefa(index) {
+        const novaDescricao = prompt('Editar tarefa:', tarefas[index].nome);
+        if (novaDescricao !== null) {
+            const descricaoTrim = novaDescricao.trim();
+            if (descricaoTrim.length > 0) {
+                tarefas[index].nome = descricaoTrim;
+                salvarTarefas();
+                renderizarTarefas();
+            }
+        }
+    }
+
+    // Deleta tarefa do array e atualiza
+    function deletarTarefa(index) {
+        const conf = confirm('Deseja realmente excluir esta tarefa?');
+        if (conf) {
+            tarefas.splice(index,1);
+            salvarTarefas();
+            renderizarTarefas();
+        }
+    }
+
+    // Listener para o submit do formulário - adiciona tarefa
+    formTarefa.addEventListener('submit', e => {
+        e.preventDefault();
+        const nome = inputTarefa.value;
+        const prioridade = selectPrioridade.value;
+        if (nome.trim().length === 0) return;
+        adicionarTarefa(nome, prioridade);
+        inputTarefa.value = '';
+        inputTarefa.focus();
+    });
+
+    filtroPrioridade.addEventListener('change', renderizarTarefas);
+    filtroStatus.addEventListener('change', renderizarTarefas);
+
+    renderizarTarefas();
+</script>
+</body>
+</html>
+
